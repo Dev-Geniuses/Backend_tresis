@@ -9,12 +9,11 @@ app = Flask(__name__)
 def usuario():
     if request.method == 'GET':
         usuarios = get_user()
-        print(usuarios)
-        return jsonify({'mensaje': usuarios})
+        return jsonify({'message': usuarios})
 
     if request.method == 'POST':
         
-        return jsonify({'mensaje': 'funciona p cholo EL POST'})
+        return jsonify({'message': 'funcionando'})
 
 if __name__ == '__main__':
     app.run(debug=True)
