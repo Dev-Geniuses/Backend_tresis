@@ -4,6 +4,8 @@ from controllers.controlador_alumno import get_user_student
 from controllers.controlador_asesor import get_user_teacher
 from flask_cors import cross_origin
 from config import config
+from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from database.db import get_connection
 from flask_login import LoginManager, login_user, logout_user, login_required
 import json
@@ -17,6 +19,8 @@ from models.ModelUser import ModelUser
 from models.entities.User import User
 
 app = Flask(__name__)
+
+csrf = CSRFProtect()
 login_manager_app = LoginManager(app)
 
 @login_manager_app.user_loader
@@ -72,7 +76,13 @@ def logout():
     logout_user()
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
+@app.route('/get_csrf_token', methods=['GET'])
+def get_csrf_token():
+    csrf_token1 = generate_csrf()
+    return jsonify({'csrf_token': csrf_token1})
+
 
 if __name__ == '__main__':
     app.config.from_object(config['development'])
+    csrf.init_app(app)
     app.run(port=5001)
