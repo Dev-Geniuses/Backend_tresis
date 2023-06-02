@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, json
+from flask import Flask, request, jsonify, redirect, url_for, json
 from dotenv import load_dotenv
 from controllers.controlador_alumno import get_user_student
 from controllers.controlador_asesor import get_user_teacher
