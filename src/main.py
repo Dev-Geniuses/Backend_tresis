@@ -19,13 +19,13 @@ from models.ModelUser import ModelUser
 from models.entities.User import User
 
 app = Flask(__name__)
-CORS(app, origins='http://localhost:5173')
-csrf = CSRFProtect()
+CORS(app)
+
 jwt = JWTManager(app)
 
 
-@app.route("/api/usuario", methods = ['POST', 'GET'])
 @cross_origin()
+@app.route("/api/usuario", methods = ['POST', 'GET'])
 @jwt_required()
 def usuario():
     if request.method == 'GET':
@@ -49,6 +49,7 @@ def upload_file():
 def index():
     return redirect(url_for('login'))
 
+@cross_origin()
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method=="POST":
@@ -71,6 +72,8 @@ def login():
 def logout():
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
+
+@cross_origin()
 @app.route('/get_csrf_token', methods=['GET'])
 def get_csrf_token():
     csrf_token1 = generate_csrf()
@@ -78,5 +81,5 @@ def get_csrf_token():
 
 if __name__ == '__main__':
     app.config.from_object(config['development'])
-    csrf.init_app(app)
+   
     app.run(port=5001)
