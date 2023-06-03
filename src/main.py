@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from controllers.controlador_alumno import get_user_student
 from controllers.controlador_asesor import get_user_teacher
 from flask_cors import CORS,cross_origin
+from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from config import config
 from database.db import get_connection
@@ -18,6 +20,7 @@ from models.entities.User import User
 
 app = Flask(__name__)
 CORS(app, origins='http://localhost:5173')
+csrf = CSRFProtect()
 jwt = JWTManager(app)
 
 
@@ -68,6 +71,12 @@ def login():
 def logout():
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
+@app.route('/get_csrf_token', methods=['GET'])
+def get_csrf_token():
+    csrf_token1 = generate_csrf()
+    return jsonify({'csrf_token': csrf_token1})
+
 if __name__ == '__main__':
     app.config.from_object(config['development'])
+    csrf.init_app(app)
     app.run(port=5001)
