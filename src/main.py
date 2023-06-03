@@ -1,11 +1,9 @@
-from flask import Flask, request, jsonify, redirect, url_for, json
+from flask import Flask, request, jsonify, redirect, url_for, json, session
 from dotenv import load_dotenv
 from controllers.controlador_alumno import get_user_student
 from controllers.controlador_asesor import get_user_teacher
-from flask_cors import cross_origin
+from flask_cors import CORS,cross_origin
 from config import config
-from flask_wtf.csrf import CSRFProtect
-from flask_wtf.csrf import generate_csrf
 from database.db import get_connection
 from flask_login import LoginManager, login_user, logout_user, login_required
 import json
@@ -19,8 +17,8 @@ from models.ModelUser import ModelUser
 from models.entities.User import User
 
 app = Flask(__name__)
+CORS(app, origins='http://localhost:5173')
 
-csrf = CSRFProtect()
 login_manager_app = LoginManager(app)
 
 @login_manager_app.user_loader
@@ -29,8 +27,8 @@ def load_user(Codigo_usuario):
     return ModelUser.get_by_id(connection,Codigo_usuario)
 
 @app.route("/api/usuario", methods = ['POST', 'GET'])
-@cross_origin()
 @login_required
+@cross_origin()
 def usuario():
     if request.method == 'GET':
         alumnos = get_user_student()
@@ -54,6 +52,7 @@ def index():
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
+@cross_origin()
 def login():
     if request.method=="POST":
         recieve_json = request.get_json()
@@ -72,17 +71,11 @@ def login():
         return jsonify({'message': 'retorno'})
 
 @app.route('/logout')
+@cross_origin()
 def logout():
     logout_user()
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
-@app.route('/get_csrf_token', methods=['GET'])
-def get_csrf_token():
-    csrf_token1 = generate_csrf()
-    return jsonify({'csrf_token': csrf_token1})
-
-
 if __name__ == '__main__':
     app.config.from_object(config['development'])
-    csrf.init_app(app)
     app.run(port=5001)
