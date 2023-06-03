@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 from controllers.controlador_alumno import get_user_student
 from controllers.controlador_asesor import get_user_teacher
 from flask_cors import CORS,cross_origin
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from config import config
 from database.db import get_connection
-from flask_login import LoginManager, login_user, logout_user, login_required
 import json
 load_dotenv()
 
@@ -18,17 +18,12 @@ from models.entities.User import User
 
 app = Flask(__name__)
 CORS(app, origins='http://localhost:5173')
+jwt = JWTManager(app)
 
-login_manager_app = LoginManager(app)
-
-@login_manager_app.user_loader
-def load_user(Codigo_usuario):
-    connection = get_connection()
-    return ModelUser.get_by_id(connection,Codigo_usuario)
 
 @app.route("/api/usuario", methods = ['POST', 'GET'])
-@login_required
 @cross_origin()
+@jwt_required()
 def usuario():
     if request.method == 'GET':
         alumnos = get_user_student()
@@ -52,7 +47,6 @@ def index():
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
-@cross_origin()
 def login():
     if request.method=="POST":
         recieve_json = request.get_json()
@@ -61,8 +55,8 @@ def login():
         logged_user = ModelUser.login(connection,user)
         if logged_user != None:
             if logged_user.passw:
-                login_user(logged_user)
-                return jsonify({'message': 'Contraseña correcta', 'data': json.loads(json.dumps(logged_user.__dict__))})
+                access_token = create_access_token(identity=logged_user.id)
+                return jsonify({'message': 'Contraseña correcta', 'data': json.loads(json.dumps(logged_user.__dict__)),'access_token': access_token})
             else:
                 return jsonify({'message': 'Contraseña invalida'})
         else:
@@ -71,9 +65,7 @@ def login():
         return jsonify({'message': 'retorno'})
 
 @app.route('/logout')
-@cross_origin()
 def logout():
-    logout_user()
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
 if __name__ == '__main__':
