@@ -7,12 +7,18 @@ class ModelUser():
         try:
             with db.cursor() as cursor:
                 cursor.execute("""
-                    SELECT Codigo_usuario, Nom_usuario, passw FROM usuario
+                    USE tresis;
+                    SELECT Codigo_usuario, Nom_usuario, passw,
+                    CASE
+                        WHEN EXISTS (SELECT 1 FROM alumno WHERE Codigo_alumno = Codigo_usuario) THEN 'alumno'
+                        ELSE 'asesor'
+                    END AS tipo_usuario
+                    FROM usuario;
                     WHERE Nom_usuario = '{}'""".format(user.user))
                 
                 result = cursor.fetchone()
                 if result != None:
-                    user = User(result[0],result[1], User.check_password(result[2], user.passw))
+                    user = User(result[0],result[1], User.check_password(result[2], user.passw), result[3])
                     return user
                 else:
                     return None
