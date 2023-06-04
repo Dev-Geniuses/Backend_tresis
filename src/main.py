@@ -32,7 +32,7 @@ jwt = JWTManager(app)
 @cross_origin()
 @app.route("/api/usuario/alumno", methods = ['POST', 'GET'])
 @jwt_required()
-def usuario():
+def usuario_alumno():
     if request.method == 'GET':
         alumnos = get_user_student()
         return jsonify({'message': {'alumnos':alumnos}})
@@ -44,7 +44,7 @@ def usuario():
 @cross_origin()
 @app.route("/api/usuario/asesor", methods = ['POST', 'GET'])
 @jwt_required()
-def usuario():
+def usuario_asesor():
     if request.method == 'GET':
         asesores = get_user_teacher()
         return jsonify({'message': {'asesores':asesores}})
