@@ -12,7 +12,7 @@ class ModelUser():
                         WHEN EXISTS (SELECT 1 FROM alumno WHERE Codigo_alumno = Codigo_usuario) THEN 'alumno'
                         ELSE 'asesor'
                     END AS tipo_usuario
-                    FROM usuario;
+                    FROM usuario
                     WHERE Nom_usuario = '{}'""".format(user.user))
                 
                 result = cursor.fetchone()
