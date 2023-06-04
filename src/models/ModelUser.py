@@ -7,7 +7,6 @@ class ModelUser():
         try:
             with db.cursor() as cursor:
                 cursor.execute("""
-                    USE tresis;
                     SELECT Codigo_usuario, Nom_usuario, passw,
                     CASE
                         WHEN EXISTS (SELECT 1 FROM alumno WHERE Codigo_alumno = Codigo_usuario) THEN 'alumno'
