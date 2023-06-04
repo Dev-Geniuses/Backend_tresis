@@ -72,7 +72,7 @@ def login():
     if request.method=="POST":
         recieve_json = request.get_json()
         connection = get_connection()
-        user = User(0,recieve_json.get('user'),recieve_json.get('passw'))
+        user = User(0,recieve_json.get('user'),recieve_json.get('passw'),'')
         logged_user = ModelUser.login(connection,user)
         if logged_user != None:
             if logged_user.passw:
