@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect, url_for, json, session
+from flask import Flask, send_file, request, jsonify, redirect, url_for, json, session
 from dotenv import load_dotenv
 from controllers.controlador_alumno import get_user_student
 from controllers.controlador_asesor import get_user_teacher
@@ -9,6 +9,11 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from config import config
 from database.db import get_connection
 import json
+from service.compareWord import resaltar_diferencias, resaltar_diferencias_documento2
+from wtforms import FileField
+import os
+from zipfile import ZipFile
+
 load_dotenv()
 
 # Models
@@ -72,6 +77,28 @@ def login():
 def logout():
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
+@app.route('/compareWord', methods=['POST'])
+def compareWord():
+    documento1 = request.files['documento1']
+    documento2 = request.files['documento2']
+    outPath = "./documents/documento1_comparado.docx"
+    outPath_2 = "./documents/documento2_comparado.docx"
+    resaltar_diferencias(documento1,documento2)
+    resaltar_diferencias_documento2(documento1,documento2)
+
+    nombre_zip = 'zip/archivos.zip'
+    with ZipFile(nombre_zip, 'w') as zip:
+        zip.write(outPath, os.path.basename(outPath))
+        zip.write(outPath_2, os.path.basename(outPath_2))
+
+    return send_file(nombre_zip, as_attachment=True)
+
+@app.route('/descargar_documento', methods=['GET'])
+def descargar_documento():
+    # Ruta del archivo de Word que deseas enviar
+    ruta_documento = "./documents/documento1_comparado.docx"
+
+    return send_file(ruta_documento, as_attachment=True)
 
 @cross_origin()
 @app.route('/get_csrf_token', methods=['GET'])
